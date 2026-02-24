@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  etherscope-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: etherscope
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - BLOCKCHAIN_API_PROVIDER=${BLOCKCHAIN_API_PROVIDER:-etherscan}
+      - ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY}
+      - ALCHEMY_API_KEY=${ALCHEMY_API_KEY}
+      - CACHE_ENABLED=${CACHE_ENABLED:-true}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - DEBUG=${DEBUG:-false}
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "print('Bot running')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
